@@ -1,0 +1,30 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, warning=FALSE}
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(gganimate)
+library(gghighlight)
+library(maps)
+
+life_exp <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/week14_global_life_expectancy.csv")
+```
+
+```{r}
+life_expectancy_post_1950 <- 
+  life_exp %>% 
+  mutate(country_name = countrycode::countrycode(sourcevar = code, origin = "iso3c", destination = "country.name")) %>% 
+  filter(year > 1949,
+         !is.na(country_name),
+         !code %in% grepl("OWID_", code))
+```
+
+```{r}
+
+```
+
+

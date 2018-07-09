@@ -12,19 +12,109 @@ library(gghighlight)
 library(maps)
 
 life_exp <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/week14_global_life_expectancy.csv")
+
+theme_custom <-
+  theme(
+  text = element_text(family = "Helvetica-Narrow", color = "#22211d"),
+  #rect = element_rect(fill = "#DBD9D6", color = NA),
+  #plot.background = element_rect(fill = "#DBD9D6", color = NA),
+  #panel.background = element_rect(fill = "#DBD9D6", color = NA),
+  legend.background = element_rect(fill = "#fcfcfc", color = NA),
+  legend.key = element_rect(fill = "#fcfcfc"),
+  plot.subtitle = element_text(size = 8),
+  plot.caption = element_text(color = "gray30"),
+  plot.background = element_rect(fill = "#fcfcfc"),
+  plot.margin = unit(c(5, 10, 5, 10), units = "mm"),
+  panel.grid = element_blank(),
+  panel.grid.major = element_line(color = "white", size = 1)
+  )
+
+labels_default <-
+  labs(title = "Animated Life Expectancy, ",
+  subtitle = "Shown is period life expectancy at birth. This corresponds to an estimate of the average number of years a newborn infant\nwould live if prevailing patterns of mortality at the time of its birth were to stay the same throughout its life.",
+  caption = "Source: https://ourworldindata.org/life-expectancy")
+
 ```
 
 ```{r}
 life_expectancy_post_1950 <- 
   life_exp %>% 
-  mutate(country_name = countrycode::countrycode(sourcevar = code, origin = "iso3c", destination = "country.name")) %>% 
+  mutate(country_name = countrycode::countrycode(sourcevar = code, 
+                                                 origin = "iso3c", 
+                                                 destination = "country.name")) %>% 
   filter(year > 1949,
          !is.na(country_name),
-         !code %in% grepl("OWID_", code))
+         !code %in% grepl("OWID_", code)) %>% 
+  mutate(iso_name = maps::iso.expand(code))
 ```
 
 ```{r}
+world_map <- sf::st_as_sf(map('world', plot = FALSE, fill = TRUE))
+
+
 
 ```
 
+
+```{r}
+le_1950_map <- left_join(life_expectancy_post_1950, world_map, by=c("iso_name" = "ID"))
+```
+
+```{r}
+p <- ggplot(le_1950_map) +
+  geom_sf(aes(fill = life_expectancy, frame = year)) +
+  coord_sf(datum = NA) +
+  theme_minimal() +
+  theme_custom +
+  scale_fill_viridis_c(option = "plasma") +
+  labels_default +
+  labs(x = NULL,
+       y = NULL,
+       fill = "Life Expectancy")
+
+#p
+```
+
+```{r}
+animation::ani.options(interval = .07)
+gganimate(p, filename = "world_life_exp.gif", title_frame = T, ani.width = 600, 
+          ani.height = 400)
+```
+
+```{r}
+g <- ggplot(data = le_1950_map, aes(year, life_expectancy, group = country, frame = year)) +
+  geom_line(aes(cumulative = TRUE), color = "#008FBE") +
+  geom_point(color = "#008FBE") +
+  theme_minimal() +
+  theme_custom +
+  labels_default +
+  labs(x = NULL,
+       y = "Life Expectancy")
+
+gganimate(g, "line_life_exp.gif", title_frame = T, ani.width = 700, 
+          ani.height = 700)
+```
+
+
+```{r}
+
+sample_le <- le_1950_map %>% 
+  filter(country %in% sample(unique(le_1950_map$country), 10)) %>% 
+  arrange(year) %>% 
+  mutate(country = forcats::fct_reorder(country, life_expectancy, last))
+
+n <- ggplot(sample_le, aes(life_expectancy, country, frame = year)) +
+  geom_path(aes(cumulative = TRUE, group = country), arrow = arrow(length = unit(1.5, "mm"), type = "closed"), color = "#008FBE") +
+  theme_minimal() +
+  theme_custom +
+  theme(panel.grid = element_blank(),
+        panel.grid.major = element_line(color = "white", size = 1)) +
+  labels_default +
+  labs(title = "Life Expectancy (10 randomly selected countries), ",
+       x = "Life Expectancy",
+       y = NULL) 
+
+gganimate(n, "path_life_exp.gif", title_frame = T, ani.width = 700, 
+          ani.height = 700)
+```
 

@@ -15,9 +15,9 @@ theme_custom <-
     text = element_text(family = "Helvetica-Narrow", color = "#22211d"),
     legend.background = element_rect(fill = "#fcfcfc", color = NA),
     legend.key = element_rect(fill = "#fcfcfc"),
-    plot.subtitle = element_text(size = 8),
+    plot.subtitle = element_text(size = 12),
     plot.caption = element_text(color = "gray30"),
-    plot.background = element_rect(fill = "#fcfcfc"),
+    plot.background = element_rect(fill = "#fcfcfc", color = "#fcfcfc"),
     plot.margin = unit(c(5, 10, 5, 10), units = "mm"),
     panel.grid = element_blank(),
     panel.grid.major = element_line(color = "white", size = 1)
@@ -122,12 +122,13 @@ p <-   ggplot() +
     fontface = "bold",
     size = 4
   ) +
-  theme_void() +
+  coord_sf(datum = NA) +
+  theme_minimal() +
   scale_fill_viridis_d(
     name = "Number of breweries",
     guide = guide_legend(
-      keyheight = unit(3, units = "mm"),
-      keywidth = unit(12, units = "mm"),
+      keyheight = unit(6, units = "mm"),
+      keywidth = unit(24, units = "mm"),
       label.position = "bottom",
       title.position = 'top',
       nrow = 1
@@ -137,9 +138,10 @@ p <-   ggplot() +
   ggtitle("A map of craft breweries, state by state") +
   theme_custom +
   theme(
+    axis.title = element_blank(),
     legend.position = c(0.5, 0.9),
     plot.title = element_text(
-      size = 22,
+      size = 30,
       hjust = 0.5,
       color = "#22211d",
       margin = margin(
@@ -155,12 +157,12 @@ p <-   ggplot() +
 #p
 
 # Animate
+animation::ani.options(loop = 1)
 gganimate(
   p,
   "week15/craft_beer_usa.gif",
   title_frame = F,
-  ani.width = 800,
-  ani.height = 600,
-  interval = 0.01,
-  loop = 1
+  ani.width = 1920,
+  ani.height = 993,
+  interval = 0.01
 )

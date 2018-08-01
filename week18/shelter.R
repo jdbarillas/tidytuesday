@@ -2,6 +2,7 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(ggplot2)
+library(gganimate)
 library(stringr)
 library(readxl)
 
@@ -53,6 +54,15 @@ dallas
 dallas %>% 
   left_join(euthanize_tract_data %>% 
               group_by(outcome_date, tract) %>% 
-              summarise(N = n()), by = c("TRACTCE"="tract")) %>%   
+              summarise(N = n()), by = c("TRACTCE"="tract")) %>% 
+  filter(!is.na(outcome_date)) %>% 
 ggplot() +
-  geom_sf(aes(fill = N)) 
+  geom_sf(aes(fill = N))  +
+  # Here comes the gganimate specific bits
+  labs(title = 'Date: {frame_time}') +
+  transition_time(outcome_date) +
+  #transition_states(outcome_date, transition_length = 1, state_length = 1) +
+  ease_aes('linear') +
+  NULL -> p
+
+p

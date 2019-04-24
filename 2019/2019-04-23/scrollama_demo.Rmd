@@ -1,7 +1,8 @@
 ---
-title: "Anime Table"
+title: "Top 50 Anime by Popularity"
 output:
-  rolldown::scrollama_sidebar
+  rolldown::scrollama_sidebar:
+    number_sections: false
 ---
 
 ```{r setup, include=FALSE}
@@ -14,20 +15,47 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
   padding: 15px;
 }
 
+.sidebar {
+  max-width: 70rem;
+}
+
 .exhibit {
   border: 2px dotted;
+  background-color: rgba(204, 228, 244, 0.4);
 }
 
-.sidebar {
-  background-color: #BAC8F9;
+body {
+  background-color: #fcf0e1;
+  color: #15425f;
 }
 
-.exhibit img {
-  width: 50%;
+.exhibit .figure {
+  width: 100%;
   height: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.sidebar img {
+.exhibit .figure img {
+  width: 80%;
+  height: 90%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+
+.caption {
+  font-weight: bold;
+  font-size: 110%;
+  text-align: center;
+  display: block;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.sidebar img, .sidebar .caption {
   display: none;
 }
 ```
@@ -51,9 +79,28 @@ distinct_anime <- cbind(distinct_anime,  img_path = images_src)
 ```
 
 ```{r, results='asis'}
-rmarkdown_text = glue::glue_data(distinct_anime, "\n\n# {name} \n\n{synopsis}\n\n![]({img_path})\n\n")
+rmarkdown_text = glue::glue_data(distinct_anime,
+"# {popularity} - {name}
 
-cat(rmarkdown_text)
+**(Added to personal list by {scales::comma(members)} members)** 
+
+* Type: {type}  
+* Source: {source} 
+* Episodes: {episodes}
+* Status: {status}
+* Score: {score}
+
+### Synopsis 
+
+{synopsis} 
+
+![{title_english} ({title_japanese})]({img_path})
+
+
+"
+)
+
+cat(rmarkdown_text, sep = "\n")
 ```
 
 

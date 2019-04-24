@@ -62,8 +62,21 @@ body {
 
 ```{r data-setup}
 library(dplyr)
+library(rvest)
 
 tidy_anime <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/tidy_anime.csv")
+
+page <- read_html("media/anime_page.html")
+
+image_urls <- page %>%
+html_nodes(".lazyloaded") %>%
+html_attr("data-src")
+
+image_destfile <- paste0("media/images/rank_", 1:length(image_urls), ".png")
+
+if (length(fs::dir_ls("media/images")) == 0) {
+  purrr::walk2(image_urls, image_destfile, ~download.file(.x, destfile = .y))
+}
 ```
 
 ```{r, results='asis', echo = FALSE}

@@ -1,0 +1,62 @@
+---
+title: "Anime Table"
+output:
+  rolldown::scrollama_sidebar
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+```
+
+```{css}
+.header, .sidebar{
+  padding: 15px;
+}
+
+.exhibit {
+  border: 2px dotted;
+}
+
+.sidebar {
+  background-color: #BAC8F9;
+}
+
+.exhibit img {
+  width: 50%;
+  height: 100%;
+}
+
+.sidebar img {
+  display: none;
+}
+```
+
+```{r data-setup}
+library(dplyr)
+
+tidy_anime <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/tidy_anime.csv")
+```
+
+```{r, results='asis', echo = FALSE}
+distinct_anime <- tidy_anime %>% 
+  arrange(desc(members)) %>% 
+  group_by(animeID) %>% 
+  filter(row_number() == 1) %>% 
+  head(50)
+
+images_src <- fs::dir_ls("media/images/")
+
+distinct_anime <- cbind(distinct_anime,  img_path = images_src)
+```
+
+```{r, results='asis'}
+rmarkdown_text = glue::glue_data(distinct_anime, "\n\n# {name} \n\n{synopsis}\n\n![]({img_path})\n\n")
+
+cat(rmarkdown_text)
+```
+
+
+
+
+

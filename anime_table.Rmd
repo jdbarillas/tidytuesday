@@ -1,0 +1,34 @@
+---
+title: "A Multi-page HTML Document"
+author: "Yihui Xie and Romain Lesur"
+date: "`r Sys.Date()`"
+output:
+  pagedown::html_paged:
+    toc: true
+    # change to true for a self-contained document, but it'll be a litte slower for Pandoc to render
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(gt)
+
+tidy_anime <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-04-23/tidy_anime.csv")
+```
+
+# Introduction
+
+This is an example of a multi-page HTML document. See https://pagedown.rbind.io for the full documentation. The rest of this document is random text.
+
+# Random text
+
+```{r, results='asis', echo = FALSE}
+distinct_anime <- tidy_anime %>% 
+  group_by(animeID) %>% 
+  filter(row_number() == 1)
+
+distinct_anime %>% 
+  select(rank, name, score) %>% 
+  gt()
+```
